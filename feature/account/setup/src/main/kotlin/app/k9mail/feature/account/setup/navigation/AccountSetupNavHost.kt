@@ -21,6 +21,8 @@ import app.k9mail.feature.account.setup.ui.createaccount.CreateAccountScreen
 import app.k9mail.feature.account.setup.ui.createaccount.CreateAccountViewModel
 import app.k9mail.feature.account.setup.ui.options.AccountOptionsScreen
 import app.k9mail.feature.account.setup.ui.options.AccountOptionsViewModel
+import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersScreen
+import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersViewModel
 import org.koin.androidx.compose.koinViewModel
 
 private const val NESTED_NAVIGATION_AUTO_CONFIG = "autoconfig"
@@ -28,6 +30,7 @@ private const val NESTED_NAVIGATION_INCOMING_SERVER_CONFIG = "incoming-server/co
 private const val NESTED_NAVIGATION_INCOMING_SERVER_VALIDATION = "incoming-server/validation"
 private const val NESTED_NAVIGATION_OUTGOING_SERVER_CONFIG = "outgoing-server/config"
 private const val NESTED_NAVIGATION_OUTGOING_SERVER_VALIDATION = "outgoing-server/validation"
+private const val NESTED_NAVIGATION_SPECIAL_FOLDERS = "special-folders"
 private const val NESTED_NAVIGATION_ACCOUNT_OPTIONS = "account-options"
 private const val NESTED_NAVIGATION_CREATE_ACCOUNT = "create-account"
 
@@ -96,7 +99,7 @@ fun AccountSetupNavHost(
         composable(route = NESTED_NAVIGATION_OUTGOING_SERVER_VALIDATION) {
             ServerValidationScreen(
                 onNext = {
-                    navController.navigate(NESTED_NAVIGATION_ACCOUNT_OPTIONS) {
+                    navController.navigate(NESTED_NAVIGATION_SPECIAL_FOLDERS) {
                         if (isAutomaticConfig) {
                             popUpTo(NESTED_NAVIGATION_AUTO_CONFIG)
                         } else {
@@ -106,6 +109,16 @@ fun AccountSetupNavHost(
                 },
                 onBack = { navController.popBackStack() },
                 viewModel = koinViewModel<OutgoingServerValidationViewModel>(),
+            )
+        }
+
+        composable(route = NESTED_NAVIGATION_SPECIAL_FOLDERS) {
+            SpecialFoldersScreen(
+                onNext = {
+                    navController.navigate(NESTED_NAVIGATION_ACCOUNT_OPTIONS)
+                },
+                onBack = { navController.popBackStack() },
+                viewModel = koinViewModel<SpecialFoldersViewModel>(),
             )
         }
 

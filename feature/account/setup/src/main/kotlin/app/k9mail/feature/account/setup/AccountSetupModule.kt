@@ -16,6 +16,7 @@ import app.k9mail.feature.account.setup.ui.createaccount.CreateAccountViewModel
 import app.k9mail.feature.account.setup.ui.options.AccountOptionsContract
 import app.k9mail.feature.account.setup.ui.options.AccountOptionsValidator
 import app.k9mail.feature.account.setup.ui.options.AccountOptionsViewModel
+import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersViewModel
 import okhttp3.OkHttpClient
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.module.Module
@@ -62,6 +63,10 @@ val featureAccountSetupModule: Module = module {
             accountStateRepository = get(),
             oAuthViewModel = get(),
         )
+    }
+
+    viewModel {
+        SpecialFoldersViewModel()
     }
 
     viewModel {

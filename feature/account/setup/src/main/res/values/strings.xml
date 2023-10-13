@@ -25,6 +25,11 @@
     <string name="account_setup_auto_discovery_result_approval_checkbox_label">I trust this configuration</string>
     <string name="account_setup_auto_discovery_result_approval_error_approval_required">It is required to approve the configuration.</string>
 
+    <string name="account_setup_special_folders_top_bar_title">Special folders</string>
+    <string name="account_setup_special_folders_validating_message">Validating special folders</string>
+    <string name="account_setup_special_folders_error_message">Failed to validate special folders</string>
+    <string name="account_setup_special_folders_success_message">Special folders are valid</string>
+
     <string name="account_setup_options_top_bar_title">Account options</string>
     <string name="account_setup_options_section_display_options">Display options</string>
     <string name="account_setup_options_account_name_label">Account name</string>
