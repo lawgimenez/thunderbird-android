@@ -1,5 +1,6 @@
 package app.k9mail.feature.account.setup.ui.specialfolders
 
+import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.FormState
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.State
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -13,9 +14,31 @@ class SpecialFoldersStateTest {
 
         assertThat(state).isEqualTo(
             State(
+                formState = FormState(),
                 isSuccess = false,
                 error = null,
                 isLoading = true,
+            ),
+        )
+    }
+
+    @Test
+    fun `should set default form values`() {
+        val formState = FormState()
+
+        assertThat(formState).isEqualTo(
+            FormState(
+                archiveFolders = emptyMap(),
+                draftsFolders = emptyMap(),
+                sentFolders = emptyMap(),
+                spamFolders = emptyMap(),
+                trashFolders = emptyMap(),
+
+                selectedArchiveFolder = null,
+                selectedDraftsFolder = null,
+                selectedSentFolder = null,
+                selectedSpamFolder = null,
+                selectedTrashFolder = null,
             ),
         )
     }

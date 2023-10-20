@@ -16,6 +16,8 @@ import app.k9mail.feature.account.setup.ui.createaccount.CreateAccountViewModel
 import app.k9mail.feature.account.setup.ui.options.AccountOptionsContract
 import app.k9mail.feature.account.setup.ui.options.AccountOptionsValidator
 import app.k9mail.feature.account.setup.ui.options.AccountOptionsViewModel
+import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract
+import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersFormUiModel
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersViewModel
 import okhttp3.OkHttpClient
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -65,8 +67,14 @@ val featureAccountSetupModule: Module = module {
         )
     }
 
+    factory<SpecialFoldersContract.FormUiModel> {
+        SpecialFoldersFormUiModel()
+    }
+
     viewModel {
-        SpecialFoldersViewModel()
+        SpecialFoldersViewModel(
+            formUiModel = get(),
+        )
     }
 
     viewModel {

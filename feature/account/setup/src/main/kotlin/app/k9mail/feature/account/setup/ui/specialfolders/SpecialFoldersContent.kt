@@ -55,7 +55,7 @@ fun SpecialFoldersContent(
                 )
             } else {
                 SpecialFoldersFormContent(
-                    state = state,
+                    state = state.formState,
                     onEvent = onEvent,
                     modifier = Modifier.fillMaxSize(),
                 )
