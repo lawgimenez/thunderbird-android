@@ -4,6 +4,7 @@ import app.k9mail.autodiscovery.api.AutoDiscoveryResult
 import app.k9mail.core.common.domain.usecase.validation.ValidationResult
 import app.k9mail.feature.account.common.domain.entity.AccountOptions
 import app.k9mail.feature.account.setup.AccountSetupExternalContract.AccountCreator.AccountCreatorResult
+import com.fsck.k9.mail.FolderType
 import com.fsck.k9.mail.ServerSettings
 import com.fsck.k9.mail.folders.RemoteFolder
 
@@ -46,6 +47,10 @@ interface DomainContract {
 
         fun interface GetRemoteFolders {
             suspend fun execute(): List<RemoteFolder>
+        }
+
+        fun interface GetRemoteFoldersToFolderTypeMapping {
+            fun execute(folders: List<RemoteFolder>): Map<FolderType, RemoteFolder?>
         }
     }
 }

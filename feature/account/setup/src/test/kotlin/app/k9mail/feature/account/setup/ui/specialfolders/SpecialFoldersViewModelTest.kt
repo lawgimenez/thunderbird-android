@@ -32,8 +32,16 @@ class SpecialFoldersViewModelTest {
             RemoteFolder(FolderServerId("folder1"), "folder1", FolderType.REGULAR),
             RemoteFolder(FolderServerId("folder2"), "folder2", FolderType.REGULAR),
         )
+        val remoteFolderMapping = mapOf(
+            FolderType.ARCHIVE to remoteFolders[0],
+            FolderType.DRAFTS to remoteFolders[1],
+            FolderType.SENT to remoteFolders[0],
+            FolderType.SPAM to remoteFolders[1],
+            FolderType.TRASH to remoteFolders[0],
+        )
         val testSubject = createTestSubject(
             remoteFolders = remoteFolders,
+            remoteFolderMapping = remoteFolderMapping,
         )
         val initialState = State()
         val turbines = turbinesWithInitialStateCheck(testSubject, initialState)
@@ -47,6 +55,12 @@ class SpecialFoldersViewModelTest {
                 sentFolders = remoteFolders.associateBy { it.displayName },
                 spamFolders = remoteFolders.associateBy { it.displayName },
                 trashFolders = remoteFolders.associateBy { it.displayName },
+
+                selectedArchiveFolder = remoteFolderMapping[FolderType.ARCHIVE],
+                selectedDraftsFolder = remoteFolderMapping[FolderType.DRAFTS],
+                selectedSentFolder = remoteFolderMapping[FolderType.SENT],
+                selectedSpamFolder = remoteFolderMapping[FolderType.SPAM],
+                selectedTrashFolder = remoteFolderMapping[FolderType.TRASH],
             ),
         )
 
@@ -110,11 +124,15 @@ class SpecialFoldersViewModelTest {
         fun createTestSubject(
             formUiModel: SpecialFoldersContract.FormUiModel = FakeSpecialFoldersFormUiModel(),
             remoteFolders: List<RemoteFolder> = emptyList(),
+            remoteFolderMapping: Map<FolderType, RemoteFolder> = emptyMap(),
         ) = SpecialFoldersViewModel(
             formUiModel = formUiModel,
             getRemoteFolders = {
                 delay(50)
                 remoteFolders
+            },
+            getRemoteFoldersToFolderTypeMapping = {
+                remoteFolderMapping
             },
         )
     }
