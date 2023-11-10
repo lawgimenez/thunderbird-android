@@ -2,6 +2,7 @@ package app.k9mail.feature.account.setup.ui.specialfolders
 
 import androidx.lifecycle.viewModelScope
 import app.k9mail.core.ui.compose.common.mvi.BaseViewModel
+import app.k9mail.feature.account.setup.domain.DomainContract.UseCase
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.Effect
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.Event
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.FormEvent
@@ -14,13 +15,14 @@ private const val CONTINUE_NEXT_DELAY = 1500L
 
 class SpecialFoldersViewModel(
     private val formUiModel: SpecialFoldersContract.FormUiModel,
+    private val getRemoteFolders: UseCase.GetRemoteFolders,
     initialState: State = State(),
 ) : BaseViewModel<State, Event, Effect>(initialState),
     ViewModel {
 
     override fun event(event: Event) {
         when (event) {
-            Event.LoadSpecialFolders -> onLoadSpecialFolders()
+            Event.LoadSpecialFolders -> handleOneTimeEvent(event, ::onLoadSpecialFolders)
 
             is FormEvent -> onFormEvent(event)
 
@@ -39,7 +41,21 @@ class SpecialFoldersViewModel(
 
     private fun onLoadSpecialFolders() {
         viewModelScope.launch {
-            // load folders and validate -> use case
+            val folders = getRemoteFolders.execute()
+
+            updateState { state ->
+                state.copy(
+                    formState = state.formState.copy(
+                        archiveFolders = folders.associateBy { it.displayName },
+                        draftsFolders = folders.associateBy { it.displayName },
+                        sentFolders = folders.associateBy { it.displayName },
+                        spamFolders = folders.associateBy { it.displayName },
+                        trashFolders = folders.associateBy { it.displayName },
+                    ),
+                )
+            }
+
+            // todo validate folders
             // if valid change to success else disable loading only and present special folders form
             delay(CONTINUE_NEXT_DELAY)
             updateState {

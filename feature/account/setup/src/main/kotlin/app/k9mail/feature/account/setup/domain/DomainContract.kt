@@ -5,6 +5,7 @@ import app.k9mail.core.common.domain.usecase.validation.ValidationResult
 import app.k9mail.feature.account.common.domain.entity.AccountOptions
 import app.k9mail.feature.account.setup.AccountSetupExternalContract.AccountCreator.AccountCreatorResult
 import com.fsck.k9.mail.ServerSettings
+import com.fsck.k9.mail.folders.RemoteFolder
 
 interface DomainContract {
 
@@ -41,6 +42,10 @@ interface DomainContract {
 
         fun interface ValidateEmailSignature {
             fun execute(emailSignature: String): ValidationResult
+        }
+
+        fun interface GetRemoteFolders {
+            suspend fun execute(): List<RemoteFolder>
         }
     }
 }
