@@ -28,17 +28,25 @@ class SpecialFoldersViewModelTest {
 
     @Test
     fun `should load remote folders and populate form state when LoadSpecialFolders event received`() = runTest {
+        val initialState = State(
+            isLoading = true,
+        )
         val testSubject = createTestSubject(
+            formUiModel = FakeSpecialFoldersFormUiModel(
+                isValid = true,
+            ),
             remoteFolders = REMOTE_FOLDERS,
             remoteFolderMapping = REMOTE_FOLDER_MAPPING,
             filteredRemoteFolders = FILTERED_REMOTE_FOLDERS,
+            initialState = initialState,
         )
-        val initialState = State()
         val turbines = turbinesWithInitialStateCheck(testSubject, initialState)
 
         testSubject.event(Event.LoadSpecialFolders)
 
         val populatedState = initialState.copy(
+            isLoading = true,
+            isSuccess = true,
             formState = FormState(
                 archiveFolders = FILTERED_REMOTE_FOLDERS_MAP,
                 draftsFolders = FILTERED_REMOTE_FOLDERS_MAP,
@@ -54,13 +62,8 @@ class SpecialFoldersViewModelTest {
             ),
         )
 
-        assertThat(turbines.awaitStateItem()).isEqualTo(populatedState)
-
-        val finishedLoadingState = populatedState.copy(
-            isLoading = false,
-        )
         turbines.assertThatAndStateTurbineConsumed {
-            isEqualTo(finishedLoadingState)
+            isEqualTo(populatedState)
         }
     }
 
@@ -116,6 +119,7 @@ class SpecialFoldersViewModelTest {
             remoteFolders: List<RemoteFolder> = emptyList(),
             remoteFolderMapping: Map<FolderType, RemoteFolder> = emptyMap(),
             filteredRemoteFolders: List<RemoteFolder> = emptyList(),
+            initialState: State = State(),
         ) = SpecialFoldersViewModel(
             formUiModel = formUiModel,
             getRemoteFolders = {
@@ -128,6 +132,7 @@ class SpecialFoldersViewModelTest {
             filterRemoteFoldersForType = { _, _ ->
                 filteredRemoteFolders
             },
+            initialState = initialState,
         )
 
         val REMOTE_FOLDER_ARCHIVE = RemoteFolder(FolderServerId("archive"), "archive", FolderType.ARCHIVE)

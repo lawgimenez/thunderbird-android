@@ -6,13 +6,12 @@ import app.k9mail.feature.account.setup.domain.DomainContract.UseCase
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.Effect
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.Event
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.FormEvent
+import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.FormState
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.State
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.ViewModel
 import com.fsck.k9.mail.FolderType
-import kotlinx.coroutines.delay
+import com.fsck.k9.mail.folders.RemoteFolder
 import kotlinx.coroutines.launch
-
-private const val CONTINUE_NEXT_DELAY = 1500L
 
 class SpecialFoldersViewModel(
     private val formUiModel: SpecialFoldersContract.FormUiModel,
@@ -46,43 +45,56 @@ class SpecialFoldersViewModel(
         viewModelScope.launch {
             val folders = getRemoteFolders.execute()
             val folderTypeMapping = getRemoteFoldersToFolderTypeMapping.execute(folders)
-            val archiveFolders = filterRemoteFoldersForType.execute(FolderType.ARCHIVE, folders)
-            val draftsFolders = filterRemoteFoldersForType.execute(FolderType.DRAFTS, folders)
-            val sentFolders = filterRemoteFoldersForType.execute(FolderType.SENT, folders)
-            val spamFolders = filterRemoteFoldersForType.execute(FolderType.SPAM, folders)
-            val trashFolders = filterRemoteFoldersForType.execute(FolderType.TRASH, folders)
+            val formState = mapToFormState(folders, folderTypeMapping)
+            val isValid = formUiModel.validate(formState)
 
             updateState { state ->
                 state.copy(
-                    formState = state.formState.copy(
-                        archiveFolders = archiveFolders.associateBy { it.displayName },
-                        draftsFolders = draftsFolders.associateBy { it.displayName },
-                        sentFolders = sentFolders.associateBy { it.displayName },
-                        spamFolders = spamFolders.associateBy { it.displayName },
-                        trashFolders = trashFolders.associateBy { it.displayName },
-
-                        selectedArchiveFolder = folderTypeMapping[FolderType.ARCHIVE],
-                        selectedDraftsFolder = folderTypeMapping[FolderType.DRAFTS],
-                        selectedSentFolder = folderTypeMapping[FolderType.SENT],
-                        selectedSpamFolder = folderTypeMapping[FolderType.SPAM],
-                        selectedTrashFolder = folderTypeMapping[FolderType.TRASH],
-                    ),
+                    isSuccess = isValid,
+                    isLoading = isValid,
+                    formState = formState,
                 )
             }
 
-            // todo validate folders
-            // if valid change to success else disable loading only and present special folders form
-            delay(CONTINUE_NEXT_DELAY)
-            updateState {
-                it.copy(
-                    isSuccess = false,
-                    isLoading = false,
-                )
+            if (isValid) {
+                // TODO save folder mapping
             }
         }
     }
 
+    private suspend fun mapToFormState(
+        folders: List<RemoteFolder>,
+        folderTypeMapping: Map<FolderType, RemoteFolder?>,
+    ): FormState {
+        val archiveFolders = filterRemoteFoldersForType.execute(FolderType.ARCHIVE, folders)
+        val draftsFolders = filterRemoteFoldersForType.execute(FolderType.DRAFTS, folders)
+        val sentFolders = filterRemoteFoldersForType.execute(FolderType.SENT, folders)
+        val spamFolders = filterRemoteFoldersForType.execute(FolderType.SPAM, folders)
+        val trashFolders = filterRemoteFoldersForType.execute(FolderType.TRASH, folders)
+
+        return FormState(
+            archiveFolders = archiveFolders.associateBy { it.displayName },
+            draftsFolders = draftsFolders.associateBy { it.displayName },
+            sentFolders = sentFolders.associateBy { it.displayName },
+            spamFolders = spamFolders.associateBy { it.displayName },
+            trashFolders = trashFolders.associateBy { it.displayName },
+
+            selectedArchiveFolder = folderTypeMapping[FolderType.ARCHIVE],
+            selectedDraftsFolder = folderTypeMapping[FolderType.DRAFTS],
+            selectedSentFolder = folderTypeMapping[FolderType.SENT],
+            selectedSpamFolder = folderTypeMapping[FolderType.SPAM],
+            selectedTrashFolder = folderTypeMapping[FolderType.TRASH],
+        )
+    }
+
     private fun onNextClicked() {
+        viewModelScope.launch {
+            val isValid = formUiModel.validate(state.value.formState)
+            if (isValid) {
+                // TODO save folder mapping
+            }
+        }
+
         emitEffect(Effect.NavigateNext)
     }
 
