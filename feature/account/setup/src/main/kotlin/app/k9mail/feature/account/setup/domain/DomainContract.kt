@@ -49,6 +49,10 @@ interface DomainContract {
             suspend fun execute(): List<RemoteFolder>
         }
 
+        fun interface FilterRemoteFoldersForType {
+            suspend fun execute(folderType: FolderType, folders: List<RemoteFolder>): List<RemoteFolder>
+        }
+
         fun interface GetRemoteFoldersToFolderTypeMapping {
             fun execute(folders: List<RemoteFolder>): Map<FolderType, RemoteFolder?>
         }

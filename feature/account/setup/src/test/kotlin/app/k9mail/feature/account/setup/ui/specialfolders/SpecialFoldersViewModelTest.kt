@@ -28,20 +28,10 @@ class SpecialFoldersViewModelTest {
 
     @Test
     fun `should load remote folders and populate form state when LoadSpecialFolders event received`() = runTest {
-        val remoteFolders = listOf(
-            RemoteFolder(FolderServerId("folder1"), "folder1", FolderType.REGULAR),
-            RemoteFolder(FolderServerId("folder2"), "folder2", FolderType.REGULAR),
-        )
-        val remoteFolderMapping = mapOf(
-            FolderType.ARCHIVE to remoteFolders[0],
-            FolderType.DRAFTS to remoteFolders[1],
-            FolderType.SENT to remoteFolders[0],
-            FolderType.SPAM to remoteFolders[1],
-            FolderType.TRASH to remoteFolders[0],
-        )
         val testSubject = createTestSubject(
-            remoteFolders = remoteFolders,
-            remoteFolderMapping = remoteFolderMapping,
+            remoteFolders = REMOTE_FOLDERS,
+            remoteFolderMapping = REMOTE_FOLDER_MAPPING,
+            filteredRemoteFolders = FILTERED_REMOTE_FOLDERS,
         )
         val initialState = State()
         val turbines = turbinesWithInitialStateCheck(testSubject, initialState)
@@ -50,17 +40,17 @@ class SpecialFoldersViewModelTest {
 
         val populatedState = initialState.copy(
             formState = FormState(
-                archiveFolders = remoteFolders.associateBy { it.displayName },
-                draftsFolders = remoteFolders.associateBy { it.displayName },
-                sentFolders = remoteFolders.associateBy { it.displayName },
-                spamFolders = remoteFolders.associateBy { it.displayName },
-                trashFolders = remoteFolders.associateBy { it.displayName },
+                archiveFolders = FILTERED_REMOTE_FOLDERS_MAP,
+                draftsFolders = FILTERED_REMOTE_FOLDERS_MAP,
+                sentFolders = FILTERED_REMOTE_FOLDERS_MAP,
+                spamFolders = FILTERED_REMOTE_FOLDERS_MAP,
+                trashFolders = FILTERED_REMOTE_FOLDERS_MAP,
 
-                selectedArchiveFolder = remoteFolderMapping[FolderType.ARCHIVE],
-                selectedDraftsFolder = remoteFolderMapping[FolderType.DRAFTS],
-                selectedSentFolder = remoteFolderMapping[FolderType.SENT],
-                selectedSpamFolder = remoteFolderMapping[FolderType.SPAM],
-                selectedTrashFolder = remoteFolderMapping[FolderType.TRASH],
+                selectedArchiveFolder = REMOTE_FOLDER_ARCHIVE,
+                selectedDraftsFolder = REMOTE_FOLDER_DRAFTS,
+                selectedSentFolder = REMOTE_FOLDER_SENT,
+                selectedSpamFolder = REMOTE_FOLDER_SPAM,
+                selectedTrashFolder = REMOTE_FOLDER_TRASH,
             ),
         )
 
@@ -125,6 +115,7 @@ class SpecialFoldersViewModelTest {
             formUiModel: SpecialFoldersContract.FormUiModel = FakeSpecialFoldersFormUiModel(),
             remoteFolders: List<RemoteFolder> = emptyList(),
             remoteFolderMapping: Map<FolderType, RemoteFolder> = emptyMap(),
+            filteredRemoteFolders: List<RemoteFolder> = emptyList(),
         ) = SpecialFoldersViewModel(
             formUiModel = formUiModel,
             getRemoteFolders = {
@@ -134,6 +125,43 @@ class SpecialFoldersViewModelTest {
             getRemoteFoldersToFolderTypeMapping = {
                 remoteFolderMapping
             },
+            filterRemoteFoldersForType = { _, _ ->
+                filteredRemoteFolders
+            },
+        )
+
+        val REMOTE_FOLDER_ARCHIVE = RemoteFolder(FolderServerId("archive"), "archive", FolderType.ARCHIVE)
+        val REMOTE_FOLDER_DRAFTS = RemoteFolder(FolderServerId("drafts"), "drafts", FolderType.DRAFTS)
+        val REMOTE_FOLDER_SENT = RemoteFolder(FolderServerId("sent"), "sent", FolderType.SENT)
+        val REMOTE_FOLDER_SPAM = RemoteFolder(FolderServerId("spam"), "spam", FolderType.SPAM)
+        val REMOTE_FOLDER_TRASH = RemoteFolder(FolderServerId("trash"), "trash", FolderType.TRASH)
+
+        val REMOTE_FOLDERS = listOf(
+            REMOTE_FOLDER_ARCHIVE,
+            REMOTE_FOLDER_DRAFTS,
+            REMOTE_FOLDER_SENT,
+            REMOTE_FOLDER_SPAM,
+            REMOTE_FOLDER_TRASH,
+            RemoteFolder(FolderServerId("folder2"), "folder2", FolderType.REGULAR),
+            RemoteFolder(FolderServerId("folder1"), "folder1", FolderType.REGULAR),
+        )
+
+        val REMOTE_FOLDER_MAPPING = mapOf(
+            FolderType.ARCHIVE to REMOTE_FOLDERS[0],
+            FolderType.DRAFTS to REMOTE_FOLDERS[1],
+            FolderType.SENT to REMOTE_FOLDERS[2],
+            FolderType.SPAM to REMOTE_FOLDERS[3],
+            FolderType.TRASH to REMOTE_FOLDERS[4],
+        )
+
+        val FILTERED_REMOTE_FOLDERS = listOf(
+            REMOTE_FOLDER_ARCHIVE,
+            REMOTE_FOLDER_DRAFTS,
+        )
+
+        val FILTERED_REMOTE_FOLDERS_MAP = mapOf(
+            "archive" to REMOTE_FOLDER_ARCHIVE,
+            "drafts" to REMOTE_FOLDER_DRAFTS,
         )
     }
 }

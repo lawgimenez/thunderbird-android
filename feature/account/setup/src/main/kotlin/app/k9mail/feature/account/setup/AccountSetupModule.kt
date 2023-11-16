@@ -8,6 +8,7 @@ import app.k9mail.feature.account.server.settings.featureAccountServerSettingsMo
 import app.k9mail.feature.account.server.validation.featureAccountServerValidationModule
 import app.k9mail.feature.account.setup.domain.DomainContract
 import app.k9mail.feature.account.setup.domain.usecase.CreateAccount
+import app.k9mail.feature.account.setup.domain.usecase.FilterRemoteFoldersForType
 import app.k9mail.feature.account.setup.domain.usecase.GetAutoDiscovery
 import app.k9mail.feature.account.setup.domain.usecase.GetRemoteFolders
 import app.k9mail.feature.account.setup.domain.usecase.GetRemoteFoldersToFolderTypeMapping
@@ -93,6 +94,10 @@ val featureAccountSetupModule: Module = module {
         GetRemoteFoldersToFolderTypeMapping()
     }
 
+    factory<DomainContract.UseCase.FilterRemoteFoldersForType> {
+        FilterRemoteFoldersForType()
+    }
+
     factory<SpecialFoldersContract.FormUiModel> {
         SpecialFoldersFormUiModel()
     }
@@ -102,6 +107,7 @@ val featureAccountSetupModule: Module = module {
             formUiModel = get(),
             getRemoteFolders = get(),
             getRemoteFoldersToFolderTypeMapping = get(),
+            filterRemoteFoldersForType = get(),
         )
     }
 

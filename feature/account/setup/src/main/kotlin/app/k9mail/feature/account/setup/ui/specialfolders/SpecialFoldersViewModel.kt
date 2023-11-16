@@ -18,6 +18,7 @@ class SpecialFoldersViewModel(
     private val formUiModel: SpecialFoldersContract.FormUiModel,
     private val getRemoteFolders: UseCase.GetRemoteFolders,
     private val getRemoteFoldersToFolderTypeMapping: UseCase.GetRemoteFoldersToFolderTypeMapping,
+    private val filterRemoteFoldersForType: UseCase.FilterRemoteFoldersForType,
     initialState: State = State(),
 ) : BaseViewModel<State, Event, Effect>(initialState),
     ViewModel {
@@ -45,15 +46,20 @@ class SpecialFoldersViewModel(
         viewModelScope.launch {
             val folders = getRemoteFolders.execute()
             val folderTypeMapping = getRemoteFoldersToFolderTypeMapping.execute(folders)
+            val archiveFolders = filterRemoteFoldersForType.execute(FolderType.ARCHIVE, folders)
+            val draftsFolders = filterRemoteFoldersForType.execute(FolderType.DRAFTS, folders)
+            val sentFolders = filterRemoteFoldersForType.execute(FolderType.SENT, folders)
+            val spamFolders = filterRemoteFoldersForType.execute(FolderType.SPAM, folders)
+            val trashFolders = filterRemoteFoldersForType.execute(FolderType.TRASH, folders)
 
             updateState { state ->
                 state.copy(
                     formState = state.formState.copy(
-                        archiveFolders = folders.associateBy { it.displayName },
-                        draftsFolders = folders.associateBy { it.displayName },
-                        sentFolders = folders.associateBy { it.displayName },
-                        spamFolders = folders.associateBy { it.displayName },
-                        trashFolders = folders.associateBy { it.displayName },
+                        archiveFolders = archiveFolders.associateBy { it.displayName },
+                        draftsFolders = draftsFolders.associateBy { it.displayName },
+                        sentFolders = sentFolders.associateBy { it.displayName },
+                        spamFolders = spamFolders.associateBy { it.displayName },
+                        trashFolders = trashFolders.associateBy { it.displayName },
 
                         selectedArchiveFolder = folderTypeMapping[FolderType.ARCHIVE],
                         selectedDraftsFolder = folderTypeMapping[FolderType.DRAFTS],
