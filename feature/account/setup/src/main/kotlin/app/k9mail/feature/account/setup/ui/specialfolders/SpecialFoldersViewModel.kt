@@ -2,22 +2,30 @@ package app.k9mail.feature.account.setup.ui.specialfolders
 
 import androidx.lifecycle.viewModelScope
 import app.k9mail.core.ui.compose.common.mvi.BaseViewModel
+import app.k9mail.feature.account.common.domain.AccountDomainContract
+import app.k9mail.feature.account.common.domain.entity.SpecialFolderSettings
 import app.k9mail.feature.account.setup.domain.DomainContract.UseCase
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.Effect
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.Event
+import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.Failure.SaveFailed
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.FormEvent
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.FormState
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.State
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.ViewModel
 import com.fsck.k9.mail.FolderType
 import com.fsck.k9.mail.folders.RemoteFolder
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+private const val CONTINUE_NEXT_DELAY = 1500L
 
 class SpecialFoldersViewModel(
     private val formUiModel: SpecialFoldersContract.FormUiModel,
     private val getRemoteFolders: UseCase.GetRemoteFolders,
     private val getRemoteFoldersToFolderTypeMapping: UseCase.GetRemoteFoldersToFolderTypeMapping,
     private val filterRemoteFoldersForType: UseCase.FilterRemoteFoldersForType,
+    private val accountStateRepository: AccountDomainContract.AccountStateRepository,
     initialState: State = State(),
 ) : BaseViewModel<State, Event, Effect>(initialState),
     ViewModel {
@@ -46,19 +54,14 @@ class SpecialFoldersViewModel(
             val folders = getRemoteFolders.execute()
             val folderTypeMapping = getRemoteFoldersToFolderTypeMapping.execute(folders)
             val formState = mapToFormState(folders, folderTypeMapping)
-            val isValid = formUiModel.validate(formState)
 
             updateState { state ->
                 state.copy(
-                    isSuccess = isValid,
-                    isLoading = isValid,
                     formState = formState,
                 )
             }
 
-            if (isValid) {
-                // TODO save folder mapping
-            }
+            validateFormState()
         }
     }
 
@@ -87,18 +90,87 @@ class SpecialFoldersViewModel(
         )
     }
 
-    private fun onNextClicked() {
+    private fun validateFormState() {
+        updateState {
+            it.copy(
+                isSuccess = false,
+                isLoading = true,
+                error = null,
+            )
+        }
+        val isValid = formUiModel.validate(state.value.formState)
+        updateState { state ->
+            state.copy(
+                isSuccess = isValid,
+                isLoading = isValid,
+            )
+        }
+        if (isValid) {
+            saveSpecialFolderSettings()
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun saveSpecialFolderSettings() {
+        updateState { state ->
+            state.copy(
+                isLoading = true,
+            )
+        }
+
         viewModelScope.launch {
-            val isValid = formUiModel.validate(state.value.formState)
-            if (isValid) {
-                // TODO save folder mapping
+            val formState = state.value.formState
+
+            try {
+                accountStateRepository.setSpecialFolderSettings(
+                    SpecialFolderSettings(
+                        archiveFolder = formState.selectedArchiveFolder!!,
+                        draftsFolder = formState.selectedDraftsFolder!!,
+                        sentFolder = formState.selectedSentFolder!!,
+                        spamFolder = formState.selectedSpamFolder!!,
+                        trashFolder = formState.selectedTrashFolder!!,
+                    ),
+                )
+                updateState { state ->
+                    state.copy(
+                        isLoading = false,
+                        isSuccess = true,
+                    )
+                }
+            } catch (e: Exception) {
+                updateState { state ->
+                    state.copy(
+                        isLoading = false,
+                        error = SaveFailed(e.message ?: "unknown error"),
+                    )
+                }
+                return@launch
             }
         }
 
+        viewModelScope.launch {
+            if (state.value.isSuccess) {
+                delay(CONTINUE_NEXT_DELAY)
+                navigateNext()
+            }
+        }
+    }
+
+    private fun onNextClicked() {
+        if (state.value.isSuccess) {
+            navigateNext()
+        } else {
+            validateFormState()
+        }
+    }
+
+    private fun navigateNext() {
+        viewModelScope.coroutineContext.cancelChildren()
         emitEffect(Effect.NavigateNext)
     }
 
     private fun onBackClicked() {
+        viewModelScope.coroutineContext.cancelChildren()
         emitEffect(Effect.NavigateBack)
     }
 }

@@ -27,7 +27,7 @@ fun SpecialFoldersScreen(
 ) {
     val (state, dispatch) = viewModel.observe { effect ->
         when (effect) {
-            is Effect.NavigateNext -> onNext()
+            Effect.NavigateNext -> onNext()
             Effect.NavigateBack -> onBack()
         }
     }
@@ -51,7 +51,7 @@ fun SpecialFoldersScreen(
                 onNextClick = { dispatch(Event.OnNextClicked) },
                 onBackClick = { dispatch(Event.OnBackClicked) },
                 state = WizardNavigationBarState(
-                    isNextEnabled = state.value.isSuccess,
+                    isNextEnabled = state.value.isLoading,
                 ),
             )
         },

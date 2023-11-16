@@ -46,7 +46,7 @@ class SpecialFoldersFormUiModel : FormUiModel {
         )
     }
 
-    override suspend fun validate(formState: FormState): Boolean {
+    override fun validate(formState: FormState): Boolean {
         return formState.selectedArchiveFolder != null &&
             formState.selectedDraftsFolder != null &&
             formState.selectedSentFolder != null &&

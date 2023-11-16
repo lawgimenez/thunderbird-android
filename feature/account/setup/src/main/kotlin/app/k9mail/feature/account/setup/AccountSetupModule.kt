@@ -108,6 +108,7 @@ val featureAccountSetupModule: Module = module {
             getRemoteFolders = get(),
             getRemoteFoldersToFolderTypeMapping = get(),
             filterRemoteFoldersForType = get(),
+            accountStateRepository = get(),
         )
     }
 

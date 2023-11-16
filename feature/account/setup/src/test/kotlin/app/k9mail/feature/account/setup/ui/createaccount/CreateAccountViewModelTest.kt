@@ -7,6 +7,7 @@ import app.k9mail.feature.account.common.data.InMemoryAccountStateRepository
 import app.k9mail.feature.account.common.domain.entity.AccountOptions
 import app.k9mail.feature.account.common.domain.entity.AccountState
 import app.k9mail.feature.account.common.domain.entity.AuthorizationState
+import app.k9mail.feature.account.common.domain.entity.SpecialFolderSettings
 import app.k9mail.feature.account.setup.AccountSetupExternalContract.AccountCreator.AccountCreatorResult
 import app.k9mail.feature.account.setup.domain.entity.AccountUuid
 import app.k9mail.feature.account.setup.ui.createaccount.CreateAccountContract.Effect
@@ -17,7 +18,10 @@ import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.fsck.k9.mail.AuthType
 import com.fsck.k9.mail.ConnectionSecurity
+import com.fsck.k9.mail.FolderType
 import com.fsck.k9.mail.ServerSettings
+import com.fsck.k9.mail.folders.FolderServerId
+import com.fsck.k9.mail.folders.RemoteFolder
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -60,6 +64,7 @@ class CreateAccountViewModelTest {
                 incomingServerSettings = INCOMING_SERVER_SETTINGS,
                 outgoingServerSettings = OUTGOING_SERVER_SETTINGS,
                 authorizationState = AUTHORIZATION_STATE.state,
+                specialFolderSettings = SPECIAL_FOLDER_SETTINGS,
                 options = ACCOUNT_OPTIONS,
             ),
         )
@@ -140,6 +145,34 @@ class CreateAccountViewModelTest {
 
         private val AUTHORIZATION_STATE = AuthorizationState("authorization state")
 
+        private val SPECIAL_FOLDER_SETTINGS = SpecialFolderSettings(
+            archiveFolder = RemoteFolder(
+                FolderServerId("archive folder"),
+                "archive folder",
+                FolderType.ARCHIVE,
+            ),
+            draftsFolder = RemoteFolder(
+                FolderServerId("drafts folder"),
+                "drafts folder",
+                FolderType.DRAFTS,
+            ),
+            sentFolder = RemoteFolder(
+                FolderServerId("sent folder"),
+                "sent folder",
+                FolderType.SENT,
+            ),
+            spamFolder = RemoteFolder(
+                FolderServerId("spam folder"),
+                "spam folder",
+                FolderType.SPAM,
+            ),
+            trashFolder = RemoteFolder(
+                FolderServerId("trash folder"),
+                "trash folder",
+                FolderType.TRASH,
+            ),
+        )
+
         private val ACCOUNT_OPTIONS = AccountOptions(
             accountName = "account name",
             displayName = "display name",
@@ -154,6 +187,7 @@ class CreateAccountViewModelTest {
             incomingServerSettings = INCOMING_SERVER_SETTINGS,
             outgoingServerSettings = OUTGOING_SERVER_SETTINGS,
             authorizationState = AUTHORIZATION_STATE,
+            specialFolderSettings = SPECIAL_FOLDER_SETTINGS,
             options = ACCOUNT_OPTIONS,
         )
     }

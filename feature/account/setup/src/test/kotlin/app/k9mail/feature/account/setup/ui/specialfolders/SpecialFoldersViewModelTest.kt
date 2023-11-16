@@ -4,6 +4,8 @@ import app.k9mail.core.ui.compose.testing.MainDispatcherRule
 import app.k9mail.core.ui.compose.testing.mvi.assertThatAndEffectTurbineConsumed
 import app.k9mail.core.ui.compose.testing.mvi.assertThatAndStateTurbineConsumed
 import app.k9mail.core.ui.compose.testing.mvi.turbinesWithInitialStateCheck
+import app.k9mail.feature.account.common.data.InMemoryAccountStateRepository
+import app.k9mail.feature.account.common.domain.AccountDomainContract
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.Effect
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.Event
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.FormEvent
@@ -62,8 +64,14 @@ class SpecialFoldersViewModelTest {
             ),
         )
 
+        assertThat(turbines.awaitStateItem()).isEqualTo(populatedState)
+
+        val successState = populatedState.copy(
+            isLoading = false,
+            isSuccess = true,
+        )
         turbines.assertThatAndStateTurbineConsumed {
-            isEqualTo(populatedState)
+            isEqualTo(successState)
         }
     }
 
@@ -91,8 +99,9 @@ class SpecialFoldersViewModelTest {
 
     @Test
     fun `should emit NavigateNext effect when OnNextClicked event received`() = runTest {
-        val testSubject = createTestSubject()
-        val turbines = turbinesWithInitialStateCheck(testSubject, State())
+        val initialState = State(isSuccess = true)
+        val testSubject = createTestSubject(initialState = initialState)
+        val turbines = turbinesWithInitialStateCheck(testSubject, initialState)
 
         testSubject.event(Event.OnNextClicked)
 
@@ -119,6 +128,7 @@ class SpecialFoldersViewModelTest {
             remoteFolders: List<RemoteFolder> = emptyList(),
             remoteFolderMapping: Map<FolderType, RemoteFolder> = emptyMap(),
             filteredRemoteFolders: List<RemoteFolder> = emptyList(),
+            accountStateRepository: AccountDomainContract.AccountStateRepository = InMemoryAccountStateRepository(),
             initialState: State = State(),
         ) = SpecialFoldersViewModel(
             formUiModel = formUiModel,
@@ -132,6 +142,7 @@ class SpecialFoldersViewModelTest {
             filterRemoteFoldersForType = { _, _ ->
                 filteredRemoteFolders
             },
+            accountStateRepository = accountStateRepository,
             initialState = initialState,
         )
 

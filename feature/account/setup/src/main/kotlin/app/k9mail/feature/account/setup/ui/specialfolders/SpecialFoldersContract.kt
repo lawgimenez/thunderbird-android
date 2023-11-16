@@ -10,7 +10,7 @@ interface SpecialFoldersContract {
 
     interface FormUiModel {
         fun event(event: FormEvent, formState: FormState): FormState
-        suspend fun validate(formState: FormState): Boolean
+        fun validate(formState: FormState): Boolean
     }
 
     data class State(
@@ -56,5 +56,6 @@ interface SpecialFoldersContract {
 
     sealed interface Failure {
         data class UnknownError(val message: String) : Failure
+        data class SaveFailed(val message: String) : Failure
     }
 }
