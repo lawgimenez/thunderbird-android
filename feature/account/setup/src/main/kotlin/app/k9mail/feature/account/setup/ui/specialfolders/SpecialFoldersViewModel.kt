@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 
 private const val CONTINUE_NEXT_DELAY = 1500L
 
+@Suppress("TooManyFunctions")
 class SpecialFoldersViewModel(
     private val formUiModel: SpecialFoldersContract.FormUiModel,
     private val getRemoteFolders: UseCase.GetRemoteFolders,
@@ -38,6 +39,8 @@ class SpecialFoldersViewModel(
 
             Event.OnNextClicked -> onNextClicked()
             Event.OnBackClicked -> onBackClicked()
+            Event.OnEditClicked -> onEditClicked()
+            Event.OnRetryClicked -> onRetryClicked()
         }
     }
 
@@ -172,5 +175,23 @@ class SpecialFoldersViewModel(
     private fun onBackClicked() {
         viewModelScope.coroutineContext.cancelChildren()
         emitEffect(Effect.NavigateBack)
+    }
+
+    private fun onEditClicked() {
+        viewModelScope.coroutineContext.cancelChildren()
+        updateState { state ->
+            state.copy(
+                isSuccess = false,
+            )
+        }
+    }
+
+    private fun onRetryClicked() {
+        viewModelScope.coroutineContext.cancelChildren()
+        updateState {
+            it.copy(
+                error = null,
+            )
+        }
     }
 }

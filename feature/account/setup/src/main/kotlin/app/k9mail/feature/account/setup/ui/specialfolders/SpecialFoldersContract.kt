@@ -37,6 +37,8 @@ interface SpecialFoldersContract {
 
     sealed interface Event {
         data object LoadSpecialFolders : Event
+        data object OnEditClicked : Event
+        data object OnRetryClicked : Event
         data object OnNextClicked : Event
         data object OnBackClicked : Event
     }

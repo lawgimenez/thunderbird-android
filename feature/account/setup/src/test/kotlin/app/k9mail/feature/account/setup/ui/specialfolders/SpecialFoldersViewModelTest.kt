@@ -122,6 +122,32 @@ class SpecialFoldersViewModelTest {
         }
     }
 
+    @Test
+    fun `should show form when OnEditClicked event received`() = runTest {
+        val initialState = State(isSuccess = true)
+        val testSubject = createTestSubject(initialState = initialState)
+        val turbines = turbinesWithInitialStateCheck(testSubject, initialState)
+
+        testSubject.event(Event.OnEditClicked)
+
+        turbines.assertThatAndStateTurbineConsumed {
+            isEqualTo(initialState.copy(isSuccess = false))
+        }
+    }
+
+    @Test
+    fun `should show form when OnRetryClicked event received`() = runTest {
+        val initialState = State(error = SpecialFoldersContract.Failure.SaveFailed("error"))
+        val testSubject = createTestSubject(initialState = initialState)
+        val turbines = turbinesWithInitialStateCheck(testSubject, initialState)
+
+        testSubject.event(Event.OnRetryClicked)
+
+        turbines.assertThatAndStateTurbineConsumed {
+            isEqualTo(initialState.copy(error = null))
+        }
+    }
+
     private companion object {
         fun createTestSubject(
             formUiModel: SpecialFoldersContract.FormUiModel = FakeSpecialFoldersFormUiModel(),
