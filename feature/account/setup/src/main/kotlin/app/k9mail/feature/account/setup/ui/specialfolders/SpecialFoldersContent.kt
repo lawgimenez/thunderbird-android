@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import app.k9mail.core.ui.compose.designsystem.atom.Icon
-import app.k9mail.core.ui.compose.designsystem.atom.button.ButtonOutlined
+import app.k9mail.core.ui.compose.designsystem.atom.button.ButtonText
 import app.k9mail.core.ui.compose.designsystem.atom.text.TextSubtitle1
 import app.k9mail.core.ui.compose.designsystem.molecule.ContentLoadingErrorView
 import app.k9mail.core.ui.compose.designsystem.molecule.ErrorView
@@ -105,7 +105,7 @@ fun SuccessView(
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ButtonOutlined(
+            ButtonText(
                 text = stringResource(id = R.string.account_setup_special_folders_edit_folders_button_label),
                 onClick = onEditClick,
             )

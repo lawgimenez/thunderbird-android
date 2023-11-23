@@ -27,6 +27,7 @@
 
     <string name="account_setup_special_folders_top_bar_title">Special folders</string>
     <string name="account_setup_special_folders_form_description">Please specify the special folders for your account.</string>
+    <string name="account_setup_special_folders_form_description_automatic">The Automatic ( folder name ) entries will follow changes made by the server automatically.</string>
     <string name="account_setup_special_folders_validating_message">Validating special folders</string>
     <string name="account_setup_special_folders_error_message">Failed to validate special folders</string>
     <string name="account_setup_special_folders_success_message">Special folders are valid</string>
@@ -35,7 +36,9 @@
     <string name="account_setup_special_folders_sent_folder_label">Sent folder</string>
     <string name="account_setup_special_folders_spam_folder_label">Spam folder</string>
     <string name="account_setup_special_folders_trash_folder_label">Trash folder</string>
-    <string name="account_setup_special_folders_folder_none_selected">None selected</string>
+    <string name="account_setup_special_folders_folder_empty_selection">Please select</string>
+    <string name="account_setup_special_folders_folder_none">None</string>
+    <string name="account_setup_special_folders_folder_automatic">Automatic ( %s )</string>
     <string name="account_setup_special_folders_edit_folders_button_label">Edit folders</string>
 
     <string name="account_setup_options_top_bar_title">Account options</string>

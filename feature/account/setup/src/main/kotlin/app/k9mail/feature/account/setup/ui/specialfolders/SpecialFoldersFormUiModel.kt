@@ -1,5 +1,6 @@
 package app.k9mail.feature.account.setup.ui.specialfolders
 
+import app.k9mail.feature.account.common.domain.entity.Folder
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.FormEvent
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.FormState
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.FormUiModel
@@ -8,41 +9,41 @@ class SpecialFoldersFormUiModel : FormUiModel {
 
     override fun event(event: FormEvent, formState: FormState): FormState {
         return when (event) {
-            is FormEvent.ArchiveFolderChanged -> onArchiveFolderChanged(formState, event.folderName)
-            is FormEvent.DraftsFolderChanged -> onDraftsFolderChanged(formState, event.folderName)
-            is FormEvent.SentFolderChanged -> onSentFolderChanged(formState, event.folderName)
-            is FormEvent.SpamFolderChanged -> onSpamFolderChanged(formState, event.folderName)
-            is FormEvent.TrashFolderChanged -> onTrashFolderChanged(formState, event.folderName)
+            is FormEvent.ArchiveFolderChanged -> onArchiveFolderChanged(formState, event.folder)
+            is FormEvent.DraftsFolderChanged -> onDraftsFolderChanged(formState, event.folder)
+            is FormEvent.SentFolderChanged -> onSentFolderChanged(formState, event.folder)
+            is FormEvent.SpamFolderChanged -> onSpamFolderChanged(formState, event.folder)
+            is FormEvent.TrashFolderChanged -> onTrashFolderChanged(formState, event.folder)
         }
     }
 
-    private fun onArchiveFolderChanged(formState: FormState, folderName: String): FormState {
+    private fun onArchiveFolderChanged(formState: FormState, folder: Folder): FormState {
         return formState.copy(
-            selectedArchiveFolder = formState.archiveFolders[folderName],
+            selectedArchiveFolder = folder,
         )
     }
 
-    private fun onDraftsFolderChanged(formState: FormState, folderName: String): FormState {
+    private fun onDraftsFolderChanged(formState: FormState, folder: Folder): FormState {
         return formState.copy(
-            selectedDraftsFolder = formState.draftsFolders[folderName],
+            selectedDraftsFolder = folder,
         )
     }
 
-    private fun onSentFolderChanged(formState: FormState, folderName: String): FormState {
+    private fun onSentFolderChanged(formState: FormState, folder: Folder): FormState {
         return formState.copy(
-            selectedSentFolder = formState.sentFolders[folderName],
+            selectedSentFolder = folder,
         )
     }
 
-    private fun onSpamFolderChanged(formState: FormState, folderName: String): FormState {
+    private fun onSpamFolderChanged(formState: FormState, folder: Folder): FormState {
         return formState.copy(
-            selectedSpamFolder = formState.spamFolders[folderName],
+            selectedSpamFolder = folder,
         )
     }
 
-    private fun onTrashFolderChanged(formState: FormState, folderName: String): FormState {
+    private fun onTrashFolderChanged(formState: FormState, folder: Folder): FormState {
         return formState.copy(
-            selectedTrashFolder = formState.trashFolders[folderName],
+            selectedTrashFolder = folder,
         )
     }
 

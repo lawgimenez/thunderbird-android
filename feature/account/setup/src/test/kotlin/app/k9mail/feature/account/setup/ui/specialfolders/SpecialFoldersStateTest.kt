@@ -28,11 +28,11 @@ class SpecialFoldersStateTest {
 
         assertThat(formState).isEqualTo(
             FormState(
-                archiveFolders = emptyMap(),
-                draftsFolders = emptyMap(),
-                sentFolders = emptyMap(),
-                spamFolders = emptyMap(),
-                trashFolders = emptyMap(),
+                archiveFolders = emptyList(),
+                draftsFolders = emptyList(),
+                sentFolders = emptyList(),
+                spamFolders = emptyList(),
+                trashFolders = emptyList(),
 
                 selectedArchiveFolder = null,
                 selectedDraftsFolder = null,

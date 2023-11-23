@@ -3,11 +3,10 @@ package app.k9mail.feature.account.setup.domain
 import app.k9mail.autodiscovery.api.AutoDiscoveryResult
 import app.k9mail.core.common.domain.usecase.validation.ValidationResult
 import app.k9mail.feature.account.common.domain.entity.AccountOptions
+import app.k9mail.feature.account.common.domain.entity.Folders
 import app.k9mail.feature.account.common.domain.entity.SpecialFolderSettings
 import app.k9mail.feature.account.setup.AccountSetupExternalContract.AccountCreator.AccountCreatorResult
-import com.fsck.k9.mail.FolderType
 import com.fsck.k9.mail.ServerSettings
-import com.fsck.k9.mail.folders.RemoteFolder
 
 interface DomainContract {
 
@@ -47,16 +46,8 @@ interface DomainContract {
             fun execute(emailSignature: String): ValidationResult
         }
 
-        fun interface GetRemoteFolders {
-            suspend fun execute(): List<RemoteFolder>
-        }
-
-        fun interface FilterRemoteFoldersForType {
-            suspend fun execute(folderType: FolderType, folders: List<RemoteFolder>): List<RemoteFolder>
-        }
-
-        fun interface GetRemoteFoldersToFolderTypeMapping {
-            fun execute(folders: List<RemoteFolder>): Map<FolderType, RemoteFolder?>
+        fun interface GetFolders {
+            suspend operator fun invoke(): Folders
         }
     }
 }

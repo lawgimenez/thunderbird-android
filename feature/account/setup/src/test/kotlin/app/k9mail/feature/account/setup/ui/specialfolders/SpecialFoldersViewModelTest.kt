@@ -6,6 +6,11 @@ import app.k9mail.core.ui.compose.testing.mvi.assertThatAndStateTurbineConsumed
 import app.k9mail.core.ui.compose.testing.mvi.turbinesWithInitialStateCheck
 import app.k9mail.feature.account.common.data.InMemoryAccountStateRepository
 import app.k9mail.feature.account.common.domain.AccountDomainContract
+import app.k9mail.feature.account.common.domain.entity.AccountState
+import app.k9mail.feature.account.common.domain.entity.Folder
+import app.k9mail.feature.account.common.domain.entity.Folders
+import app.k9mail.feature.account.common.domain.entity.SpecialFolder
+import app.k9mail.feature.account.common.domain.entity.SpecialFolderSettings
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.Effect
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.Event
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract.FormEvent
@@ -29,17 +34,87 @@ class SpecialFoldersViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
-    fun `should load remote folders and populate form state when LoadSpecialFolders event received`() = runTest {
+    fun `should load folders, validate and save successfully when LoadSpecialFolders event received and setup valid`() =
+        runTest {
+            val accountStateRepository = InMemoryAccountStateRepository()
+            val initialState = State(
+                isLoading = true,
+            )
+            val testSubject = createTestSubject(
+                formUiModel = FakeSpecialFoldersFormUiModel(
+                    isValid = true,
+                ),
+                folders = FOLDERS,
+                accountStateRepository = accountStateRepository,
+                initialState = initialState,
+            )
+            val turbines = turbinesWithInitialStateCheck(testSubject, initialState)
+
+            testSubject.event(Event.LoadSpecialFolders)
+
+            val populatedState = initialState.copy(
+                isLoading = true,
+                isSuccess = false,
+                formState = FormState(
+                    archiveFolders = FOLDERS.archiveFolders,
+                    draftsFolders = FOLDERS.draftsFolders,
+                    sentFolders = FOLDERS.sentFolders,
+                    spamFolders = FOLDERS.spamFolders,
+                    trashFolders = FOLDERS.trashFolders,
+
+                    selectedArchiveFolder = SPECIAL_FOLDER_ARCHIVE.copy(isAutomatic = true),
+                    selectedDraftsFolder = SPECIAL_FOLDER_DRAFTS.copy(isAutomatic = true),
+                    selectedSentFolder = SPECIAL_FOLDER_SENT.copy(isAutomatic = true),
+                    selectedSpamFolder = SPECIAL_FOLDER_SPAM.copy(isAutomatic = true),
+                    selectedTrashFolder = SPECIAL_FOLDER_TRASH.copy(isAutomatic = true),
+                ),
+            )
+
+            assertThat(turbines.awaitStateItem()).isEqualTo(populatedState)
+
+            val validatingState = populatedState.copy(
+                isLoading = true,
+                isSuccess = true,
+            )
+            assertThat(turbines.awaitStateItem()).isEqualTo(validatingState)
+
+            val successState = populatedState.copy(
+                isLoading = false,
+                isSuccess = true,
+            )
+            turbines.assertThatAndStateTurbineConsumed {
+                isEqualTo(successState)
+            }
+
+            turbines.assertThatAndEffectTurbineConsumed {
+                isEqualTo(Effect.NavigateNext)
+            }
+
+            assertThat(accountStateRepository.getState()).isEqualTo(
+                AccountState(
+                    specialFolderSettings = SpecialFolderSettings(
+                        archiveFolder = SPECIAL_FOLDER_ARCHIVE.copy(isAutomatic = true),
+                        draftsFolder = SPECIAL_FOLDER_DRAFTS.copy(isAutomatic = true),
+                        sentFolder = SPECIAL_FOLDER_SENT.copy(isAutomatic = true),
+                        spamFolder = SPECIAL_FOLDER_SPAM.copy(isAutomatic = true),
+                        trashFolder = SPECIAL_FOLDER_TRASH.copy(isAutomatic = true),
+                    ),
+                ),
+            )
+        }
+
+    @Test
+    fun `should load folders and validate unsuccessful when LoadSpecialFolders event received`() = runTest {
+        val accountStateRepository = InMemoryAccountStateRepository()
         val initialState = State(
             isLoading = true,
         )
         val testSubject = createTestSubject(
             formUiModel = FakeSpecialFoldersFormUiModel(
-                isValid = true,
+                isValid = false,
             ),
-            remoteFolders = REMOTE_FOLDERS,
-            remoteFolderMapping = REMOTE_FOLDER_MAPPING,
-            filteredRemoteFolders = FILTERED_REMOTE_FOLDERS,
+            folders = FOLDERS,
+            accountStateRepository = accountStateRepository,
             initialState = initialState,
         )
         val turbines = turbinesWithInitialStateCheck(testSubject, initialState)
@@ -48,31 +123,35 @@ class SpecialFoldersViewModelTest {
 
         val populatedState = initialState.copy(
             isLoading = true,
-            isSuccess = true,
+            isSuccess = false,
             formState = FormState(
-                archiveFolders = FILTERED_REMOTE_FOLDERS_MAP,
-                draftsFolders = FILTERED_REMOTE_FOLDERS_MAP,
-                sentFolders = FILTERED_REMOTE_FOLDERS_MAP,
-                spamFolders = FILTERED_REMOTE_FOLDERS_MAP,
-                trashFolders = FILTERED_REMOTE_FOLDERS_MAP,
+                archiveFolders = FOLDERS.archiveFolders,
+                draftsFolders = FOLDERS.draftsFolders,
+                sentFolders = FOLDERS.sentFolders,
+                spamFolders = FOLDERS.spamFolders,
+                trashFolders = FOLDERS.trashFolders,
 
-                selectedArchiveFolder = REMOTE_FOLDER_ARCHIVE,
-                selectedDraftsFolder = REMOTE_FOLDER_DRAFTS,
-                selectedSentFolder = REMOTE_FOLDER_SENT,
-                selectedSpamFolder = REMOTE_FOLDER_SPAM,
-                selectedTrashFolder = REMOTE_FOLDER_TRASH,
+                selectedArchiveFolder = SPECIAL_FOLDER_ARCHIVE.copy(isAutomatic = true),
+                selectedDraftsFolder = SPECIAL_FOLDER_DRAFTS.copy(isAutomatic = true),
+                selectedSentFolder = SPECIAL_FOLDER_SENT.copy(isAutomatic = true),
+                selectedSpamFolder = SPECIAL_FOLDER_SPAM.copy(isAutomatic = true),
+                selectedTrashFolder = SPECIAL_FOLDER_TRASH.copy(isAutomatic = true),
             ),
         )
 
         assertThat(turbines.awaitStateItem()).isEqualTo(populatedState)
 
-        val successState = populatedState.copy(
+        val validatingState = populatedState.copy(
             isLoading = false,
-            isSuccess = true,
+            isSuccess = false,
         )
         turbines.assertThatAndStateTurbineConsumed {
-            isEqualTo(successState)
+            isEqualTo(validatingState)
         }
+
+        turbines.effectTurbine.ensureAllEventsConsumed()
+
+        assertThat(accountStateRepository.getState()).isEqualTo(AccountState())
     }
 
     @Test
@@ -82,18 +161,18 @@ class SpecialFoldersViewModelTest {
             formUiModel = formUiModel,
         )
 
-        testSubject.event(FormEvent.ArchiveFolderChanged("archiveFolder"))
-        testSubject.event(FormEvent.DraftsFolderChanged("draftsFolder"))
-        testSubject.event(FormEvent.SentFolderChanged("sentFolder"))
-        testSubject.event(FormEvent.SpamFolderChanged("spamFolder"))
-        testSubject.event(FormEvent.TrashFolderChanged("trashFolder"))
+        testSubject.event(FormEvent.ArchiveFolderChanged(SPECIAL_FOLDER_ARCHIVE))
+        testSubject.event(FormEvent.DraftsFolderChanged(SPECIAL_FOLDER_DRAFTS))
+        testSubject.event(FormEvent.SentFolderChanged(SPECIAL_FOLDER_SENT))
+        testSubject.event(FormEvent.SpamFolderChanged(SPECIAL_FOLDER_SPAM))
+        testSubject.event(FormEvent.TrashFolderChanged(SPECIAL_FOLDER_TRASH))
 
         assertThat(formUiModel.events).containsExactly(
-            FormEvent.ArchiveFolderChanged("archiveFolder"),
-            FormEvent.DraftsFolderChanged("draftsFolder"),
-            FormEvent.SentFolderChanged("sentFolder"),
-            FormEvent.SpamFolderChanged("spamFolder"),
-            FormEvent.TrashFolderChanged("trashFolder"),
+            FormEvent.ArchiveFolderChanged(SPECIAL_FOLDER_ARCHIVE),
+            FormEvent.DraftsFolderChanged(SPECIAL_FOLDER_DRAFTS),
+            FormEvent.SentFolderChanged(SPECIAL_FOLDER_SENT),
+            FormEvent.SpamFolderChanged(SPECIAL_FOLDER_SPAM),
+            FormEvent.TrashFolderChanged(SPECIAL_FOLDER_TRASH),
         )
     }
 
@@ -151,59 +230,58 @@ class SpecialFoldersViewModelTest {
     private companion object {
         fun createTestSubject(
             formUiModel: SpecialFoldersContract.FormUiModel = FakeSpecialFoldersFormUiModel(),
-            remoteFolders: List<RemoteFolder> = emptyList(),
-            remoteFolderMapping: Map<FolderType, RemoteFolder> = emptyMap(),
-            filteredRemoteFolders: List<RemoteFolder> = emptyList(),
+            folders: Folders = FOLDERS,
             accountStateRepository: AccountDomainContract.AccountStateRepository = InMemoryAccountStateRepository(),
             initialState: State = State(),
         ) = SpecialFoldersViewModel(
             formUiModel = formUiModel,
-            getRemoteFolders = {
+            getFolders = {
                 delay(50)
-                remoteFolders
-            },
-            getRemoteFoldersToFolderTypeMapping = {
-                remoteFolderMapping
-            },
-            filterRemoteFoldersForType = { _, _ ->
-                filteredRemoteFolders
+                folders
             },
             accountStateRepository = accountStateRepository,
             initialState = initialState,
         )
 
-        val REMOTE_FOLDER_ARCHIVE = RemoteFolder(FolderServerId("archive"), "archive", FolderType.ARCHIVE)
-        val REMOTE_FOLDER_DRAFTS = RemoteFolder(FolderServerId("drafts"), "drafts", FolderType.DRAFTS)
-        val REMOTE_FOLDER_SENT = RemoteFolder(FolderServerId("sent"), "sent", FolderType.SENT)
-        val REMOTE_FOLDER_SPAM = RemoteFolder(FolderServerId("spam"), "spam", FolderType.SPAM)
-        val REMOTE_FOLDER_TRASH = RemoteFolder(FolderServerId("trash"), "trash", FolderType.TRASH)
+        val REMOTE_FOLDER = RemoteFolder(FolderServerId("archive"), "archive", FolderType.ARCHIVE)
 
-        val REMOTE_FOLDERS = listOf(
-            REMOTE_FOLDER_ARCHIVE,
-            REMOTE_FOLDER_DRAFTS,
-            REMOTE_FOLDER_SENT,
-            REMOTE_FOLDER_SPAM,
-            REMOTE_FOLDER_TRASH,
-            RemoteFolder(FolderServerId("folder2"), "folder2", FolderType.REGULAR),
-            RemoteFolder(FolderServerId("folder1"), "folder1", FolderType.REGULAR),
-        )
+        val SPECIAL_FOLDER_ARCHIVE = SpecialFolder.Archive(REMOTE_FOLDER)
+        val SPECIAL_FOLDER_DRAFTS = SpecialFolder.Drafts(REMOTE_FOLDER)
+        val SPECIAL_FOLDER_SENT = SpecialFolder.Sent(REMOTE_FOLDER)
+        val SPECIAL_FOLDER_SPAM = SpecialFolder.Spam(REMOTE_FOLDER)
+        val SPECIAL_FOLDER_TRASH = SpecialFolder.Trash(REMOTE_FOLDER)
 
-        val REMOTE_FOLDER_MAPPING = mapOf(
-            FolderType.ARCHIVE to REMOTE_FOLDERS[0],
-            FolderType.DRAFTS to REMOTE_FOLDERS[1],
-            FolderType.SENT to REMOTE_FOLDERS[2],
-            FolderType.SPAM to REMOTE_FOLDERS[3],
-            FolderType.TRASH to REMOTE_FOLDERS[4],
-        )
-
-        val FILTERED_REMOTE_FOLDERS = listOf(
-            REMOTE_FOLDER_ARCHIVE,
-            REMOTE_FOLDER_DRAFTS,
-        )
-
-        val FILTERED_REMOTE_FOLDERS_MAP = mapOf(
-            "archive" to REMOTE_FOLDER_ARCHIVE,
-            "drafts" to REMOTE_FOLDER_DRAFTS,
+        val FOLDERS = Folders(
+            archiveFolders = listOf(
+                SPECIAL_FOLDER_ARCHIVE.copy(isAutomatic = true),
+                Folder.None(),
+                SPECIAL_FOLDER_ARCHIVE,
+                Folder.Regular(REMOTE_FOLDER),
+            ),
+            draftsFolders = listOf(
+                SPECIAL_FOLDER_DRAFTS.copy(isAutomatic = true),
+                Folder.None(),
+                SPECIAL_FOLDER_DRAFTS,
+                Folder.Regular(REMOTE_FOLDER),
+            ),
+            sentFolders = listOf(
+                SPECIAL_FOLDER_SENT.copy(isAutomatic = true),
+                Folder.None(),
+                SPECIAL_FOLDER_SENT,
+                Folder.Regular(REMOTE_FOLDER),
+            ),
+            spamFolders = listOf(
+                SPECIAL_FOLDER_SPAM.copy(isAutomatic = true),
+                Folder.None(),
+                SPECIAL_FOLDER_SPAM,
+                Folder.Regular(REMOTE_FOLDER),
+            ),
+            trashFolders = listOf(
+                SPECIAL_FOLDER_TRASH.copy(isAutomatic = true),
+                Folder.None(),
+                SPECIAL_FOLDER_TRASH,
+                Folder.Regular(REMOTE_FOLDER),
+            ),
         )
     }
 }

@@ -9,9 +9,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import app.k9mail.core.ui.compose.designsystem.atom.text.TextBody1
+import app.k9mail.core.ui.compose.designsystem.atom.text.TextCaption
 import app.k9mail.core.ui.compose.designsystem.molecule.input.SelectInput
 import app.k9mail.core.ui.compose.theme.MainTheme
 import app.k9mail.core.ui.compose.theme.PreviewWithThemes
@@ -28,6 +30,8 @@ fun SpecialFoldersFormContent(
     onEvent: (FormEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val resources = LocalContext.current.resources
+
     LazyColumn(
         modifier = Modifier
             .imePadding()
@@ -48,10 +52,10 @@ fun SpecialFoldersFormContent(
 
         item {
             SelectInput(
-                options = state.archiveFolders.keys.toImmutableList(),
-                selectedOption = state.selectedArchiveFolder?.displayName
-                    ?: stringResource(id = R.string.account_setup_special_folders_folder_none_selected),
-                onOptionChange = { onEvent(FormEvent.ArchiveFolderChanged(it)) },
+                options = state.archiveFolders.toImmutableList(),
+                selectedOption = state.selectedArchiveFolder,
+                onOptionChange = { it?.let { onEvent(FormEvent.ArchiveFolderChanged(it)) } },
+                optionToStringTransformation = { it.toResourceString(resources) },
                 label = stringResource(R.string.account_setup_special_folders_archive_folder_label),
                 contentPadding = defaultItemPadding(),
             )
@@ -59,10 +63,10 @@ fun SpecialFoldersFormContent(
 
         item {
             SelectInput(
-                options = state.draftsFolders.keys.toImmutableList(),
-                selectedOption = state.selectedDraftsFolder?.displayName
-                    ?: stringResource(id = R.string.account_setup_special_folders_folder_none_selected),
-                onOptionChange = { onEvent(FormEvent.DraftsFolderChanged(it)) },
+                options = state.draftsFolders.toImmutableList(),
+                selectedOption = state.selectedDraftsFolder,
+                onOptionChange = { it?.let { onEvent(FormEvent.DraftsFolderChanged(it)) } },
+                optionToStringTransformation = { it.toResourceString(resources) },
                 label = stringResource(id = R.string.account_setup_special_folders_drafts_folder_label),
                 contentPadding = defaultItemPadding(),
             )
@@ -70,10 +74,10 @@ fun SpecialFoldersFormContent(
 
         item {
             SelectInput(
-                options = state.sentFolders.keys.toImmutableList(),
-                selectedOption = state.selectedSentFolder?.displayName
-                    ?: stringResource(id = R.string.account_setup_special_folders_folder_none_selected),
-                onOptionChange = { onEvent(FormEvent.SentFolderChanged(it)) },
+                options = state.sentFolders.toImmutableList(),
+                selectedOption = state.selectedSentFolder,
+                onOptionChange = { it?.let { onEvent(FormEvent.SentFolderChanged(it)) } },
+                optionToStringTransformation = { it.toResourceString(resources) },
                 label = stringResource(id = R.string.account_setup_special_folders_sent_folder_label),
                 contentPadding = defaultItemPadding(),
             )
@@ -81,10 +85,10 @@ fun SpecialFoldersFormContent(
 
         item {
             SelectInput(
-                options = state.spamFolders.keys.toImmutableList(),
-                selectedOption = state.selectedSpamFolder?.displayName
-                    ?: stringResource(id = R.string.account_setup_special_folders_folder_none_selected),
-                onOptionChange = { onEvent(FormEvent.SpamFolderChanged(it)) },
+                options = state.spamFolders.toImmutableList(),
+                selectedOption = state.selectedSpamFolder,
+                onOptionChange = { it?.let { onEvent(FormEvent.SpamFolderChanged(it)) } },
+                optionToStringTransformation = { it.toResourceString(resources) },
                 label = stringResource(id = R.string.account_setup_special_folders_spam_folder_label),
                 contentPadding = defaultItemPadding(),
             )
@@ -92,12 +96,19 @@ fun SpecialFoldersFormContent(
 
         item {
             SelectInput(
-                options = state.trashFolders.keys.toImmutableList(),
-                selectedOption = state.selectedTrashFolder?.displayName
-                    ?: stringResource(id = R.string.account_setup_special_folders_folder_none_selected),
-                onOptionChange = { onEvent(FormEvent.TrashFolderChanged(it)) },
+                options = state.trashFolders.toImmutableList(),
+                selectedOption = state.selectedTrashFolder,
+                onOptionChange = { it?.let { onEvent(FormEvent.TrashFolderChanged(it)) } },
+                optionToStringTransformation = { it.toResourceString(resources) },
                 label = stringResource(id = R.string.account_setup_special_folders_trash_folder_label),
                 contentPadding = defaultItemPadding(),
+            )
+        }
+
+        item {
+            TextCaption(
+                text = stringResource(id = R.string.account_setup_special_folders_form_description_automatic),
+                modifier = Modifier.padding(defaultItemPadding()),
             )
         }
     }

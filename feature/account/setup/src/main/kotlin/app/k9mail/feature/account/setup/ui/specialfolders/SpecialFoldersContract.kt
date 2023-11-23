@@ -1,8 +1,8 @@
 package app.k9mail.feature.account.setup.ui.specialfolders
 
 import app.k9mail.core.ui.compose.common.mvi.UnidirectionalViewModel
+import app.k9mail.feature.account.common.domain.entity.Folder
 import app.k9mail.feature.account.common.ui.loadingerror.LoadingErrorState
-import com.fsck.k9.mail.folders.RemoteFolder
 
 interface SpecialFoldersContract {
 
@@ -22,17 +22,17 @@ interface SpecialFoldersContract {
     ) : LoadingErrorState<Failure>
 
     data class FormState(
-        val archiveFolders: Map<String, RemoteFolder> = emptyMap(),
-        val draftsFolders: Map<String, RemoteFolder> = emptyMap(),
-        val sentFolders: Map<String, RemoteFolder> = emptyMap(),
-        val spamFolders: Map<String, RemoteFolder> = emptyMap(),
-        val trashFolders: Map<String, RemoteFolder> = emptyMap(),
+        val archiveFolders: List<Folder> = emptyList(),
+        val draftsFolders: List<Folder> = emptyList(),
+        val sentFolders: List<Folder> = emptyList(),
+        val spamFolders: List<Folder> = emptyList(),
+        val trashFolders: List<Folder> = emptyList(),
 
-        val selectedArchiveFolder: RemoteFolder? = null,
-        val selectedDraftsFolder: RemoteFolder? = null,
-        val selectedSentFolder: RemoteFolder? = null,
-        val selectedSpamFolder: RemoteFolder? = null,
-        val selectedTrashFolder: RemoteFolder? = null,
+        val selectedArchiveFolder: Folder? = null,
+        val selectedDraftsFolder: Folder? = null,
+        val selectedSentFolder: Folder? = null,
+        val selectedSpamFolder: Folder? = null,
+        val selectedTrashFolder: Folder? = null,
     )
 
     sealed interface Event {
@@ -44,11 +44,11 @@ interface SpecialFoldersContract {
     }
 
     sealed interface FormEvent : Event {
-        data class ArchiveFolderChanged(val folderName: String) : FormEvent
-        data class DraftsFolderChanged(val folderName: String) : FormEvent
-        data class SentFolderChanged(val folderName: String) : FormEvent
-        data class SpamFolderChanged(val folderName: String) : FormEvent
-        data class TrashFolderChanged(val folderName: String) : FormEvent
+        data class ArchiveFolderChanged(val folder: Folder) : FormEvent
+        data class DraftsFolderChanged(val folder: Folder) : FormEvent
+        data class SentFolderChanged(val folder: Folder) : FormEvent
+        data class SpamFolderChanged(val folder: Folder) : FormEvent
+        data class TrashFolderChanged(val folder: Folder) : FormEvent
     }
 
     sealed interface Effect {

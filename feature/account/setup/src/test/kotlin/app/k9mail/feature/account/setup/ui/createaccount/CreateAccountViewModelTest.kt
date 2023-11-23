@@ -7,6 +7,7 @@ import app.k9mail.feature.account.common.data.InMemoryAccountStateRepository
 import app.k9mail.feature.account.common.domain.entity.AccountOptions
 import app.k9mail.feature.account.common.domain.entity.AccountState
 import app.k9mail.feature.account.common.domain.entity.AuthorizationState
+import app.k9mail.feature.account.common.domain.entity.SpecialFolder
 import app.k9mail.feature.account.common.domain.entity.SpecialFolderSettings
 import app.k9mail.feature.account.setup.AccountSetupExternalContract.AccountCreator.AccountCreatorResult
 import app.k9mail.feature.account.setup.domain.entity.AccountUuid
@@ -118,10 +119,10 @@ class CreateAccountViewModelTest {
         assertThat(effectTurbine.awaitItem()).isEqualTo(Effect.NavigateBack)
     }
 
-    companion object {
-        private const val EMAIL_ADDRESS = "test@domain.example"
+    private companion object {
+        const val EMAIL_ADDRESS = "test@domain.example"
 
-        private val INCOMING_SERVER_SETTINGS = ServerSettings(
+        val INCOMING_SERVER_SETTINGS = ServerSettings(
             "imap",
             "imap.domain.example",
             993,
@@ -132,7 +133,7 @@ class CreateAccountViewModelTest {
             null,
         )
 
-        private val OUTGOING_SERVER_SETTINGS = ServerSettings(
+        val OUTGOING_SERVER_SETTINGS = ServerSettings(
             "smtp",
             "smtp.domain.example",
             465,
@@ -143,37 +144,47 @@ class CreateAccountViewModelTest {
             null,
         )
 
-        private val AUTHORIZATION_STATE = AuthorizationState("authorization state")
+        val AUTHORIZATION_STATE = AuthorizationState("authorization state")
 
-        private val SPECIAL_FOLDER_SETTINGS = SpecialFolderSettings(
-            archiveFolder = RemoteFolder(
-                FolderServerId("archive folder"),
-                "archive folder",
-                FolderType.ARCHIVE,
+        val SPECIAL_FOLDER_SETTINGS = SpecialFolderSettings(
+            archiveFolder = SpecialFolder.Archive(
+                RemoteFolder(
+                    FolderServerId("archive folder"),
+                    "archive folder",
+                    FolderType.ARCHIVE,
+                ),
             ),
-            draftsFolder = RemoteFolder(
-                FolderServerId("drafts folder"),
-                "drafts folder",
-                FolderType.DRAFTS,
+            draftsFolder = SpecialFolder.Drafts(
+                RemoteFolder(
+                    FolderServerId("drafts folder"),
+                    "drafts folder",
+                    FolderType.DRAFTS,
+                ),
             ),
-            sentFolder = RemoteFolder(
-                FolderServerId("sent folder"),
-                "sent folder",
-                FolderType.SENT,
+            sentFolder = SpecialFolder.Sent(
+                RemoteFolder(
+                    FolderServerId("sent folder"),
+                    "sent folder",
+                    FolderType.SENT,
+                ),
             ),
-            spamFolder = RemoteFolder(
-                FolderServerId("spam folder"),
-                "spam folder",
-                FolderType.SPAM,
+            spamFolder = SpecialFolder.Spam(
+                RemoteFolder(
+                    FolderServerId("spam folder"),
+                    "spam folder",
+                    FolderType.SPAM,
+                ),
             ),
-            trashFolder = RemoteFolder(
-                FolderServerId("trash folder"),
-                "trash folder",
-                FolderType.TRASH,
+            trashFolder = SpecialFolder.Trash(
+                RemoteFolder(
+                    FolderServerId("trash folder"),
+                    "trash folder",
+                    FolderType.TRASH,
+                ),
             ),
         )
 
-        private val ACCOUNT_OPTIONS = AccountOptions(
+        val ACCOUNT_OPTIONS = AccountOptions(
             accountName = "account name",
             displayName = "display name",
             emailSignature = null,
@@ -182,7 +193,7 @@ class CreateAccountViewModelTest {
             showNotification = false,
         )
 
-        private val ACCOUNT_STATE = AccountState(
+        val ACCOUNT_STATE = AccountState(
             emailAddress = EMAIL_ADDRESS,
             incomingServerSettings = INCOMING_SERVER_SETTINGS,
             outgoingServerSettings = OUTGOING_SERVER_SETTINGS,

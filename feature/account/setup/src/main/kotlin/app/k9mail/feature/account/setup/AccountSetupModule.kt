@@ -8,10 +8,8 @@ import app.k9mail.feature.account.server.settings.featureAccountServerSettingsMo
 import app.k9mail.feature.account.server.validation.featureAccountServerValidationModule
 import app.k9mail.feature.account.setup.domain.DomainContract
 import app.k9mail.feature.account.setup.domain.usecase.CreateAccount
-import app.k9mail.feature.account.setup.domain.usecase.FilterRemoteFoldersForType
 import app.k9mail.feature.account.setup.domain.usecase.GetAutoDiscovery
-import app.k9mail.feature.account.setup.domain.usecase.GetRemoteFolders
-import app.k9mail.feature.account.setup.domain.usecase.GetRemoteFoldersToFolderTypeMapping
+import app.k9mail.feature.account.setup.domain.usecase.GetFolders
 import app.k9mail.feature.account.setup.ui.autodiscovery.AccountAutoDiscoveryContract
 import app.k9mail.feature.account.setup.ui.autodiscovery.AccountAutoDiscoveryValidator
 import app.k9mail.feature.account.setup.ui.autodiscovery.AccountAutoDiscoveryViewModel
@@ -82,20 +80,12 @@ val featureAccountSetupModule: Module = module {
         )
     }
 
-    factory<DomainContract.UseCase.GetRemoteFolders> {
-        GetRemoteFolders(
+    factory<DomainContract.UseCase.GetFolders> {
+        GetFolders(
             folderFetcher = get(),
             accountStateRepository = get(),
             authStateStorage = get(),
         )
-    }
-
-    factory<DomainContract.UseCase.GetRemoteFoldersToFolderTypeMapping> {
-        GetRemoteFoldersToFolderTypeMapping()
-    }
-
-    factory<DomainContract.UseCase.FilterRemoteFoldersForType> {
-        FilterRemoteFoldersForType()
     }
 
     factory<SpecialFoldersContract.FormUiModel> {
@@ -105,9 +95,7 @@ val featureAccountSetupModule: Module = module {
     viewModel {
         SpecialFoldersViewModel(
             formUiModel = get(),
-            getRemoteFolders = get(),
-            getRemoteFoldersToFolderTypeMapping = get(),
-            filterRemoteFoldersForType = get(),
+            getFolders = get(),
             accountStateRepository = get(),
         )
     }

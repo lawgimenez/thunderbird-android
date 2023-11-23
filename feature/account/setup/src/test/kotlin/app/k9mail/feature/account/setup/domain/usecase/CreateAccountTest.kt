@@ -3,6 +3,7 @@ package app.k9mail.feature.account.setup.domain.usecase
 import app.k9mail.feature.account.common.domain.entity.Account
 import app.k9mail.feature.account.common.domain.entity.AccountOptions
 import app.k9mail.feature.account.common.domain.entity.MailConnectionSecurity
+import app.k9mail.feature.account.common.domain.entity.SpecialFolder
 import app.k9mail.feature.account.common.domain.entity.SpecialFolderSettings
 import app.k9mail.feature.account.setup.AccountSetupExternalContract.AccountCreator.AccountCreatorResult
 import assertk.assertThat
@@ -52,9 +53,9 @@ class CreateAccountTest {
     }
 
     private companion object {
-        private const val EMAIL_ADDRESS = "user@example.com"
+        const val EMAIL_ADDRESS = "user@example.com"
 
-        private val INCOMING_SETTINGS = ServerSettings(
+        val INCOMING_SETTINGS = ServerSettings(
             type = "imap",
             host = "imap.example.com",
             port = 993,
@@ -65,7 +66,7 @@ class CreateAccountTest {
             clientCertificateAlias = null,
         )
 
-        private val OUTGOING_SETTINGS = ServerSettings(
+        val OUTGOING_SETTINGS = ServerSettings(
             type = "smtp",
             host = "smtp.example.com",
             port = 465,
@@ -76,17 +77,27 @@ class CreateAccountTest {
             clientCertificateAlias = null,
         )
 
-        private const val AUTHORIZATION_STATE = "authorization state"
+        const val AUTHORIZATION_STATE = "authorization state"
 
-        private val SPECIAL_FOLDER_SETTINGS = SpecialFolderSettings(
-            archiveFolder = RemoteFolder(FolderServerId("archive"), "archive", FolderType.ARCHIVE),
-            draftsFolder = RemoteFolder(FolderServerId("drafts"), "drafts", FolderType.DRAFTS),
-            sentFolder = RemoteFolder(FolderServerId("sent"), "sent", FolderType.SENT),
-            spamFolder = RemoteFolder(FolderServerId("spam"), "spam", FolderType.SPAM),
-            trashFolder = RemoteFolder(FolderServerId("trash"), "trash", FolderType.TRASH),
+        val SPECIAL_FOLDER_SETTINGS = SpecialFolderSettings(
+            archiveFolder = SpecialFolder.Archive(
+                RemoteFolder(FolderServerId("archive"), "archive", FolderType.ARCHIVE),
+            ),
+            draftsFolder = SpecialFolder.Drafts(
+                RemoteFolder(FolderServerId("drafts"), "drafts", FolderType.DRAFTS),
+            ),
+            sentFolder = SpecialFolder.Sent(
+                RemoteFolder(FolderServerId("sent"), "sent", FolderType.SENT),
+            ),
+            spamFolder = SpecialFolder.Spam(
+                RemoteFolder(FolderServerId("spam"), "spam", FolderType.SPAM),
+            ),
+            trashFolder = SpecialFolder.Trash(
+                RemoteFolder(FolderServerId("trash"), "trash", FolderType.TRASH),
+            ),
         )
 
-        private val OPTIONS = AccountOptions(
+        val OPTIONS = AccountOptions(
             accountName = "accountName",
             displayName = "displayName",
             emailSignature = null,
